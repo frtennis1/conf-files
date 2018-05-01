@@ -1,0 +1,115 @@
+set nocompatible 
+filetype off
+
+set rtp+=~/.vim/bundle/Vundle.vim
+
+call vundle#begin()
+Plugin 'VundleVim/Vundle.vim'
+Plugin 'kien/ctrlp.vim'
+" Plugin 'ervandew/supertab'
+
+" Colors
+Plugin 'altercation/vim-colors-solarized'
+Plugin 'danilo-augusto/vim-afterglow' "Sublime-type feel
+Plugin 'jnurmine/Zenburn' " for terminal
+Plugin 'gregsexton/Atom' " dark atom theme
+Plugin 'ajh17/Spacegray.vim' " dark gray theme
+Plugin 'jdsimcoe/abstract.vim'
+
+Plugin 'tpope/vim-surround'
+Plugin 'godlygeek/tabular'
+Plugin 'Vallorics/YouCompleteMe'
+Plugin 'tommcdo/vim-exchange'
+Plugin 'vim-airline/vim-airline'
+Plugin 'vim-scripts/repmo.vim'
+Plugin 'terryma/vim-smooth-scroll'
+Plugin 'scrooloose/nerdtree'
+call vundle#end()
+
+" necessary for YouCompleteMe
+" let g:ycm_python_binary_path = '/anaconda/'
+let g:ycm_filetype_blacklist = {}
+
+" necessary for nerdtree
+map <C-n> :NERDTreeToggle<CR>
+
+" necessary for vim-latex installation
+filetype plugin on
+set shellslash
+set grepprg=grep\ -nH\ $*
+let g:tex_flavor='latex'
+let g:Tex_DefaultTargetFormat='pdf'
+let g:Tex_ViewRule_pdf = '/Applications/Preview.app'
+
+
+" functionality
+set expandtab " indents become spaces
+set autoindent " line indent propagated to new line
+set number " show numbering
+set hlsearch " highlight search results
+set colorcolumn=81 " show the 81st column visually
+syntax on " highlight syntax
+set incsearch " incremental search
+:imap jj <Esc>
+:nmap <C-f> gqip
+:nmap <C-a> :%y*<CR>
+
+" navigation
+" nnoremap j gj " move vertically by visual line
+" nnoremap k gk
+" smooth scrolling
+noremap <silent> <c-u> :call smooth_scroll#up(&scroll, 0, 2)<CR>
+noremap <silent> <c-d> :call smooth_scroll#down(&scroll, 0, 2)<CR>
+
+" multiple windows
+
+" need this incantation to avoid vim-latex from overwriting my map
+set splitbelow
+set splitright
+" augroup vimrc
+"   au!
+"   au VimEnter * unmap <C-j>
+"   au VimEnter * nnoremap <C-j> <C-w>j
+" augroup end
+nnoremap <c-k> <c-w>k
+nnoremap <c-l> <c-w>l
+nnoremap <c-h> <c-w>h
+
+
+" CtrlP
+let g:ctrlp_map = '<c-p>'
+let g:ctrlp_cmd = 'CtrlP'
+
+
+" Aesthetics of display
+if has("gui_running")
+  if has("gui_macvim")
+    set guifont=Menlo\ Regular:h12
+    colorscheme solarized
+  endif
+  else
+    colorscheme zenburn
+endif
+
+function! CopyMatches(reg)
+  let hits = []
+  %s//\=len(add(hits, submatch(0))) ? submatch(0) : ''/gne
+  let reg = empty(a:reg) ? '+' : a:reg
+  execute 'let @'.reg.' = join(hits, "\n") . "\n"'
+endfunction
+command! -register CopyMatches call CopyMatches(<q-reg>)
+
+function! s:DiffWithSaved()
+  let filetype=&ft
+  diffthis
+  vnew | r # | normal! 1Gdd
+  diffthis
+  exe "setlocal bt=nofile bh=wipe nobl noswf ro ft=" . filetype
+endfunction
+com! DiffSaved call s:DiffWithSaved()
+
+augroup myvimrchooks
+  au!
+  autocmd bufwritepost .vimrc source ~/.vimrc
+augroup END
+
