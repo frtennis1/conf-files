@@ -1,0 +1,19 @@
+patch.linewidth    : 0
+font.sans-serif    : Helvetica, Verdana, DejaVu Sans
+
+figure.figsize     : 6, 3.71
+
+axes.spines.bottom : False
+axes.spines.top    : False
+axes.spines.left   : False
+axes.spines.right  : False
+
+lines.linewidth    : 3
+font.size          : 14
+axes.labelsize     : medium
+legend.fontsize    : medium
+xtick.labelsize    : small
+ytick.labelsize    : small
+axes.titlesize     : large
+axes.titleweight   : bold
+axes.grid.axis     : y
