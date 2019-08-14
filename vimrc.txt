@@ -1,4 +1,4 @@
-set nocompatible 
+set nocompatible
 filetype off
 
 set rtp+=~/.vim/bundle/Vundle.vim
@@ -15,20 +15,76 @@ Plugin 'jnurmine/Zenburn' " for terminal
 Plugin 'gregsexton/Atom' " dark atom theme
 Plugin 'ajh17/Spacegray.vim' " dark gray theme
 Plugin 'jdsimcoe/abstract.vim'
+Plugin 'drewtempelmeyer/palenight.vim'
+Plugin 'KeitaNakamura/neodark.vim'
 
+" Small functionality changes
 Plugin 'tpope/vim-surround'
+Plugin 'tpope/vim-unimpaired'
 Plugin 'godlygeek/tabular'
-Plugin 'Vallorics/YouCompleteMe'
 Plugin 'tommcdo/vim-exchange'
-Plugin 'vim-airline/vim-airline'
 Plugin 'vim-scripts/repmo.vim'
 Plugin 'terryma/vim-smooth-scroll'
+
+" Big features
+Plugin 'vim-airline/vim-airline'
+Plugin 'vim-airline/vim-airline-themes'
+Plugin 'Valloric/YouCompleteMe'
 Plugin 'scrooloose/nerdtree'
+Plugin 'vim-syntastic/syntastic'
+Plugin 'mileszs/ack.vim'
+Plugin 'tpope/vim-fugitive'
+Plugin 'tpope/vim-rhubarb'
+
+" Web dev
+Plugin 'alvan/vim-closetag'
+Plugin 'pangloss/vim-javascript'
+Plugin 'mxw/vim-jsx'
+Plugin 'leafgarland/typescript-vim'
+Plugin 'peitalin/vim-jsx-typescript'
+Plugin 'mattn/emmet-vim'
+
+" Jupyter
+Plugin 'goerz/jupytext.vim'
+
 call vundle#end()
 
+" Jupytext
+let g:jupytext_fmt = 'py'
+
+" for web dev
+let g:closetag_filenames = "*.html,*.js,*.md,*.tsx"
+let g:closetag_filetypes = 'html,jsx'
+
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 1
+let g:syntastic_javascript_checkers = ['eslint']
+let g:syntastic_tex_checkers = [] " don't syntax check TeX
+let g:syntastic_python_checkers = [] " don't check Python
+let g:syntastic_javascript_eslint_exe = 'npm run lint --'
+let g:syntastic_python_exec = '/anaconda/envs/py36/'
+let g:syntastic_quiet_messages = {"regex": [
+\    ".*Missing module docstring",
+\    ".*Too many arguments"]}
+let g:syntastic_enable_python_checker = 0
+
+" ack
+if executable('ag')
+  let g:ackprg = 'ag --vimgrep'
+endif
+
+" for markdown rendering
+let vim_markdown_preview_hotkey='<C-m>'
+
 " necessary for YouCompleteMe
-" let g:ycm_python_binary_path = '/anaconda/'
+let g:ycm_python_interpreter_path = '/anaconda/envs/py36/bin/'
 let g:ycm_filetype_blacklist = {}
+let g:ycm_global_ycm_extra_conf = '~/.ycm_extra_conf.py'
 
 " necessary for nerdtree
 map <C-n> :NERDTreeToggle<CR>
@@ -50,6 +106,9 @@ set hlsearch " highlight search results
 set colorcolumn=81 " show the 81st column visually
 syntax on " highlight syntax
 set incsearch " incremental search
+set wildmenu
+set wildmode=longest,list
+set wildignore+=*.aux,*.log,*.jpg,*.png,.DS_Store,.git,*.swp,*.tmp
 :imap jj <Esc>
 :nmap <C-f> gqip
 :nmap <C-a> :%y*<CR>
@@ -62,15 +121,8 @@ noremap <silent> <c-u> :call smooth_scroll#up(&scroll, 0, 2)<CR>
 noremap <silent> <c-d> :call smooth_scroll#down(&scroll, 0, 2)<CR>
 
 " multiple windows
-
-" need this incantation to avoid vim-latex from overwriting my map
 set splitbelow
 set splitright
-" augroup vimrc
-"   au!
-"   au VimEnter * unmap <C-j>
-"   au VimEnter * nnoremap <C-j> <C-w>j
-" augroup end
 nnoremap <c-k> <c-w>k
 nnoremap <c-l> <c-w>l
 nnoremap <c-h> <c-w>h
@@ -79,6 +131,21 @@ nnoremap <c-h> <c-w>h
 " CtrlP
 let g:ctrlp_map = '<c-p>'
 let g:ctrlp_cmd = 'CtrlP'
+let g:ctrlp_custom_ignore = '\v[\/](\.git|\.hg|\.svn|node_modules|public)$'
+
+" Transparent mode
+function! Transparent()
+  set transparency=40
+  set guioptions=
+  colorscheme abstract
+endfunction
+command! -register Transparent call Transparent()
+
+function! NoTransparent()
+  set transparency=0
+  set guioptions=r
+ endfunction
+ command! -register NoTransparent call NoTransparent()
 
 
 " Aesthetics of display
@@ -90,6 +157,26 @@ if has("gui_running")
   else
     colorscheme zenburn
 endif
+
+" JSX syntax highlighting
+" dark red
+hi tsxTagName guifg=#E06C75
+
+" orange
+hi tsxCloseString guifg=#F99575
+hi tsxCloseTag guifg=#F99575
+hi tsxAttributeBraces guifg=#F99575
+hi tsxEqual guifg=#F99575
+
+" yellow
+hi tsxAttrib guifg=#F8BD7F cterm=italic
+
+hi ReactState guifg=#C176A7
+hi ReactProps guifg=#D19A66
+hi Events ctermfg=204 guifg=#56B6C2
+hi ReduxKeywords ctermfg=204 guifg=#C678DD
+hi WebBrowser ctermfg=204 guifg=#56B6C2
+hi ReactLifeCycleMethods ctermfg=204 guifg=#D19A66
 
 function! CopyMatches(reg)
   let hits = []
@@ -113,3 +200,6 @@ augroup myvimrchooks
   autocmd bufwritepost .vimrc source ~/.vimrc
 augroup END
 
+" allow local .vimrc for each project
+set exrc
+set secure
